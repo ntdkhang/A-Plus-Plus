@@ -1,6 +1,6 @@
 package lexer
 
-// TODO: Support Unicode
+// TODO: Support Unicode for indentifier
 
 import(
     "APlusPlus/token"
@@ -36,11 +36,24 @@ func (l *Lexer) next_token() token.Token {
     case 0:
         tok.Literal = ""
         tok.Type = token.EOF
+    default:
+        if is_letter(l.ch) {
+
+        }
     }
 
     l.read_char()
     return tok
 }
+
+func (l *Lexer) read_identifier() string {
+    position := l.position 
+    for is_letter(l.ch) {
+        l.read_char()
+    }
+    return l.input[position:l.position]
+}
+
 
 func new_token(token_type token.TokenType, ch byte) token.Token {
     return token.Token{Type: token_type, Literal: string(ch)}
@@ -65,3 +78,6 @@ func New(input string) *Lexer {
 
 
 
+func is_letter(ch byte) bool {
+    return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
+}
