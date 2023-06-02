@@ -43,6 +43,10 @@ func (l *Lexer) next_token() token.Token {
             tok.Literal = l.read_identifier()
             tok.Type = token.Lookup_ident(tok.Literal)
             return tok
+        } else if is_digit(l.ch) {
+            tok.Type = token.INT 
+            tok.Literal = l.read_number()
+            return tok
         } else {
             tok = new_token(token.ILLEGAL, l.ch)
         }
@@ -88,7 +92,18 @@ func New(input string) *Lexer {
     return l
 }
 
+func (l *Lexer) read_number() string {
+    position := l.position 
+    for is_digit(l.ch) {
+        l.read_char()
+    }
+    return l.input[position:l.position]
+}
 
+
+func is_digit(ch byte) bool {
+    return '0' <= ch && ch <= '9'
+}
 
 func is_letter(ch byte) bool {
     return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
