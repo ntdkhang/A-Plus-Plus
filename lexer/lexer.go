@@ -16,6 +16,8 @@ type Lexer struct {
 func (l *Lexer) next_token() token.Token {
     var tok token.Token 
     
+    l.skip_whitespace()
+
     switch l.ch {
     case '=':
         tok = new_token(token.ASSIGN, l.ch)
@@ -61,6 +63,12 @@ func (l *Lexer) read_identifier() string {
 
 func new_token(token_type token.TokenType, ch byte) token.Token {
     return token.Token{Type: token_type, Literal: string(ch)}
+}
+
+func (l *Lexer) skip_whitespace() {
+    for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+        l.read_char()
+    }
 }
 
 func (l *Lexer) read_char() {
