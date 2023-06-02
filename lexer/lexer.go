@@ -38,7 +38,11 @@ func (l *Lexer) next_token() token.Token {
         tok.Type = token.EOF
     default:
         if is_letter(l.ch) {
-
+            tok.Literal = l.read_identifier()
+            tok.Type = token.Lookup_ident(tok.Literal)
+            return tok
+        } else {
+            tok = new_token(token.ILLEGAL, l.ch)
         }
     }
 

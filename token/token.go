@@ -7,6 +7,7 @@ type Token struct {
     Literal string
 }
 
+// TokenTypes
 const (
     ILLEGAL = "ILLEGAL"
     EOF = "EOF"
@@ -33,4 +34,14 @@ const (
     LET = "LET"
 )
 
+var keywords = map[string]TokenType {
+    "fn": FUNCTION,
+    "let": LET,
+}
 
+func Lookup_ident(ident string) TokenType {
+    if tok, ok := keywords[ident]; ok { // ok is a bool that returns true if the key exists in the map
+        return tok
+    }
+    return IDENT
+}
