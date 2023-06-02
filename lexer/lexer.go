@@ -20,7 +20,11 @@ func (l *Lexer) next_token() token.Token {
 
     switch l.ch {
     case '=':
-        tok = new_token(token.ASSIGN, l.ch)
+        if l.peek_char() == '=' {
+            tok = l.make_two_char_tok()
+        } else {
+            tok = new_token(token.ASSIGN, l.ch)
+        }
     case ';':
         tok = new_token(token.SEMICOLON, l.ch)
     case '(':
@@ -35,6 +39,22 @@ func (l *Lexer) next_token() token.Token {
         tok = new_token(token.COMMA, l.ch)
     case '+':
         tok = new_token(token.PLUS, l.ch)
+    case '-':
+        tok = new_token(token.MINUS, l.ch)
+    case '<':
+        tok = new_token(token.LT, l.ch)
+    case '>':
+        tok = new_token(token.GT, l.ch)
+    case '*':
+        tok = new_token(token.ASTERISK, l.ch)
+    case '/':
+        tok = new_token(token.SLASH, l.ch)
+    case '!':
+        if l.peek_char() == '=' {
+            tok = l.make_two_char_tok()
+        } else {
+            tok = new_token(token.BANG, l.ch)
+        }
     case 0:
         tok.Literal = ""
         tok.Type = token.EOF
@@ -54,6 +74,22 @@ func (l *Lexer) next_token() token.Token {
 
     l.read_char()
     return tok
+}
+
+func (l *Lexer) make_two_char_tok() token.Token {
+    ch := l.ch 
+    l.read_char()
+    literal := string(ch) + string(l.ch)
+    tok := token.Token{Type: token.Lookup_operator(literal), Literal: literal}
+    return tok
+}
+
+func (l *Lexer) peek_char() byte {
+    if l.read_position >= len(l.input) {
+        return 0
+    } else {
+        return l.input[l.read_position]
+    }
 }
 
 func (l *Lexer) read_identifier() string {
@@ -93,6 +129,7 @@ func New(input string) *Lexer {
 }
 
 func (l *Lexer) read_number() string {
+    // TODO: read floats and hex, or even octal
     position := l.position 
     for is_digit(l.ch) {
         l.read_char()
