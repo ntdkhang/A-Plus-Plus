@@ -62,9 +62,26 @@ func (p *Parser) parseStatement() ast.Statement {
     switch p.curToken.Type {
     case token.LET:
         return p.parseLetStatement()
+    case token.RETURN:
+        return p.parseReturnStatement()
     default:
         return nil
     }
+}
+
+/*
+This function is called when parser is sitting on top of a RETURN token.
+it will then move to the value token 
+*/
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+    stmt := &ast.ReturnStatement{Token: p.curToken}
+
+    p.nextToken()
+    
+    for !p.curTokenIs(token.SEMICOLON) {
+        p.nextToken()
+    }
+    return stmt
 }
 
 /*

@@ -64,14 +64,14 @@ var two_char_operators = map[string]TokenType {
     "!=": NOT_EQ,
 }
 
-func Lookup_operator(op string) TokenType {
+func LookupOperator(op string) TokenType {
     if tok, ok := two_char_operators[op]; ok {
         return tok
     }
     return ILLEGAL
 }
 
-func Lookup_ident(ident string) TokenType {
+func LookupIdent(ident string) TokenType {
     if tok, ok := keywords[ident]; ok { // ok is a bool that returns true if the key exists in the map
         return tok
     }

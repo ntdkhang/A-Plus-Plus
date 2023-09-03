@@ -61,7 +61,7 @@ func (l *Lexer) NextToken() token.Token {
     default:
         if isLetter(l.ch) {
             tok.Literal = l.readIdentifier()
-            tok.Type = token.Lookup_ident(tok.Literal)
+            tok.Type = token.LookupIdent(tok.Literal)
             return tok
         } else if isDigit(l.ch) {
             tok.Type = token.INT 
@@ -80,7 +80,7 @@ func (l *Lexer) makeTwoCharTok() token.Token {
     ch := l.ch 
     l.readChar()
     literal := string(ch) + string(l.ch)
-    tok := token.Token{Type: token.Lookup_operator(literal), Literal: literal}
+    tok := token.Token{Type: token.LookupOperator(literal), Literal: literal}
     return tok
 }
 
@@ -101,8 +101,8 @@ func (l *Lexer) readIdentifier() string {
 }
 
 
-func newToken(token_type token.TokenType, ch byte) token.Token {
-    return token.Token{Type: token_type, Literal: string(ch)}
+func newToken(TokenType token.TokenType, ch byte) token.Token {
+    return token.Token{Type: TokenType, Literal: string(ch)}
 }
 
 func (l *Lexer) skipWhitespace() {

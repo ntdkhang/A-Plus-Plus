@@ -6,6 +6,34 @@ import(
     "APlusPlus/lexer"
 )
 
+func TestReturnStatements(t *testing.T) {
+    input := `
+    return 6;
+    return 9; 
+    return 69420; 
+    `
+    l := lexer.New(input)
+    p := New(l)
+
+    program := p.ParseProgram()
+    checkParserErrors(t, p)
+
+    if len(program.Statements) != 3 {
+        t.Fatalf("Expected program.Statements to contain 3 statements. Got %d instead", len(program.Statements))
+    }
+
+    for _, stmt := range program.Statements {
+        returnStmt, ok := stmt.(*ast.ReturnStatement) // type assertion. retrieve value as type *ast.ReturnStatement, if success, store value and ok = true
+        if !ok {
+            t.Errorf("stmt not *ast.ReturnStatement, got %T instead", stmt)
+            continue
+        }
+        if returnStmt.TokenLiteral() != "return" {
+            t.Errorf("returnStmt.TokenLiteral not 'return', got %q instead", returnStmt.TokenLiteral())
+        }
+    }
+}
+
 func TestLetStatements(t *testing.T) {
     input := `
     let x = 5;
