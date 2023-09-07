@@ -42,7 +42,16 @@ func New(l *lexer.Lexer) *Parser {
     p.nextToken()
     p.nextToken()
 
+    p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+
+    // associate function p.parseIdentifier with token type IDENT
+    p.registerPrefix(token.IDENT, p.parseIdentifier)
+
     return p
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+    return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 // Add entries to the prefix parse function map
@@ -92,9 +101,43 @@ func (p *Parser) parseStatement() ast.Statement {
     case token.RETURN:
         return p.parseReturnStatement()
     default:
-        return nil
+        return p.parseExpressionStatement()
     }
 }
+
+const (
+    _ int = iota // incrementing numbers as values. blank '_' takes value 0, the consts below take 1 to 7
+    LOWEST
+    EQUALS          // ==
+    LESSGREATER     // > or <
+    SUM             // +
+    PRODUCT         // *
+    PREFIX          // -X or !X
+    CALL            // myFunction(X)
+)
+
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+    stmt := &ast.ExpressionStatement {Token: p.curToken}
+    stmt.Expression = p.parseExpression(LOWEST)
+
+    if p.peekTokenIs(token.SEMICOLON) {
+        p.nextToken()
+    }
+
+    return stmt
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+    prefix := p.prefixParseFns[p.curToken.Type]
+    if prefix == nil {
+        return nil
+    }
+    leftExp := prefix()
+
+    return leftExp
+}
+
 
 /*
 This function is called when parser is sitting on top of a RETURN token.
