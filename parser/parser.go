@@ -7,6 +7,16 @@ import(
     "fmt"
 )
 
+
+type (
+    // This function gets called when we encountered a prefix operator
+    prefixParseFn func() ast.Expression
+
+    // This function gets called when we encountered an infix operator. Since we need to know the Expression before the operator,
+    // we take an Expression as argument
+    infixParseFn func(ast.Expression) ast.Expression
+)
+
 type Parser struct {
     l *lexer.Lexer
 
@@ -14,6 +24,12 @@ type Parser struct {
 
     curToken token.Token
     peekToken token.Token
+
+    // Map the token to the associated prefix parse function
+    prefixParseFns map[token.TokenType]prefixParseFn
+
+    // Map the token to the associated infix parse function
+    infixParseFns map[token.TokenType]infixParseFn
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -29,10 +45,21 @@ func New(l *lexer.Lexer) *Parser {
     return p
 }
 
+// Add entries to the prefix parse function map
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+    p.prefixParseFns[tokenType] = fn
+}
+
+// Add entries to the infix parse function map
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+    p.infixParseFns[tokenType] = fn
+}
+
 func (p *Parser) Errors() []string {
     return p.errors
 }
 
+// Print error when peek token is not what we expect
 func (p *Parser) peekError(t token.TokenType) {
     msg := fmt.Sprintf("Expected next token to be %s, got %s instead", t, p.peekToken.Type)
     p.errors = append(p.errors, msg)
@@ -71,13 +98,13 @@ func (p *Parser) parseStatement() ast.Statement {
 
 /*
 This function is called when parser is sitting on top of a RETURN token.
-it will then move to the value token 
+it will then move to the value token
 */
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
     stmt := &ast.ReturnStatement{Token: p.curToken}
 
     p.nextToken()
-    
+
     for !p.curTokenIs(token.SEMICOLON) {
         p.nextToken()
     }
@@ -87,7 +114,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 /*
 This function is called when the Parser is sitting on top of a LET token.
 It reads the next token (which should be an IDENT),
-then check if the next token is the ASSIGN token '=', 
+then check if the next token is the ASSIGN token '=',
 
 TODO: edit this
 
@@ -110,7 +137,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
     for !p.curTokenIs(token.SEMICOLON) {
         p.nextToken()
     }
-    
+
     return stmt
 }
 
@@ -131,4 +158,7 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
         return false
     }
 }
+
+
+
 
