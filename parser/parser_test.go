@@ -6,11 +6,45 @@ import(
     "APlusPlus/lexer"
 )
 
+
+func TestIdentifierExpression(t *testing.T) {
+    input := "foobar";
+
+    l := lexer.New(input)
+    p := New(l)
+    program := p.ParseProgram()
+    checkParserErrors(t, p)
+
+    if len(program.Statements) != 1 {
+        t.Fatalf("program has not enough statements. Got %d instead", len(program.Statements))
+    }
+
+    stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+    if !ok {
+        t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. Got %T instead", program.Statements[0])
+    }
+
+    ident, ok := stmt.Expression.(*ast.Identifier)
+
+    if !ok {
+        t.Fatalf("exp not *ast.Identifier, got %T instead", stmt.Expression)
+    }
+
+    if ident.Value != "foobar" {
+        t.Errorf("ident.Value not 'foobar'. got '%s' instead", ident.Value)
+    }
+
+    if ident.TokenLiteral() != "foobar" {
+        t.Errorf("ident.TokenLiteral not 'foobar', got '%s' instead", ident.TokenLiteral())
+    }
+}
+
 func TestReturnStatements(t *testing.T) {
     input := `
     return 6;
-    return 9; 
-    return 69420; 
+    return 9;
+    return 69420;
     `
     l := lexer.New(input)
     p := New(l)
@@ -65,7 +99,7 @@ func TestLetStatements(t *testing.T) {
     for i, tt := range tests {
         stmt := program.Statements[i]
         if !testLetStatement(t, stmt, tt.expectedIdentifier) {
-            return 
+            return
         }
     }
 }
@@ -99,7 +133,7 @@ func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 func checkParserErrors(t *testing.T, p *Parser) {
     errors := p.Errors()
     if len(errors) == 0 {
-        return 
+        return
     }
 
     t.Errorf("parser has %d errors", len(errors))
