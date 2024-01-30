@@ -66,9 +66,37 @@ func New(l *lexer.Lexer) *Parser {
     p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
     p.registerInfix(token.LT, p.parseInfixExpression)
     p.registerInfix(token.GT, p.parseInfixExpression)
+    p.registerInfix(token.LPAREN, p.parseCallExpression)
     return p
 }
 
+func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+    exp := &ast.CallExpression{Token: p.curToken, Function: function}
+    exp.Arguments = p.parseCallArguments()
+    return exp
+}
+
+func (p *Parser) parseCallArguments() []ast.Expression {
+    args := []ast.Expression{}
+
+    if p.peekTokenIs(token.RPAREN) {
+        p.nextToken()
+        return args
+    }
+    p.nextToken()
+    args = append(args, p.parseExpression(LOWEST))
+    for p.peekTokenIs(token.COMMA) {
+        p.nextToken()
+        p.nextToken()
+        args = append(args, p.parseExpression(LOWEST))
+    }
+
+    if !p.expectPeek(token.RPAREN) {
+        return nil
+    }
+
+    return args
+}
 
 func (p *Parser) parseFunctionLiteral() ast.Expression {
     lit := &ast.FunctionLiteral{Token: p.curToken}
@@ -242,6 +270,10 @@ const (
     CALL            // myFunction(X)
 )
 
+func (p *Parser) noPrefixParseFnError(t token.TokenType) {
+    msg := fmt.Sprintf("no prefix parse function for %s found", t)
+    p.errors = append(p.errors, msg)
+}
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
     stmt := &ast.ExpressionStatement {Token: p.curToken}
@@ -254,10 +286,6 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
     return stmt
 }
 
-func (p *Parser) noPrefixParseFnError(t token.TokenType) {
-    msg := fmt.Sprintf("no prefix parse function for %s found", t)
-    p.errors = append(p.errors, msg)
-}
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
     prefix := p.prefixParseFns[p.curToken.Type]
@@ -282,31 +310,22 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 }
 
 
-/*
-This function is called when parser is sitting on top of a RETURN token.
-it will then move to the value token
-*/
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
     stmt := &ast.ReturnStatement{Token: p.curToken}
 
     p.nextToken()
 
-    for !p.curTokenIs(token.SEMICOLON) {
+    stmt.ReturnValue = p.parseExpression(LOWEST)
+
+    if p.peekTokenIs(token.SEMICOLON) {
         p.nextToken()
     }
+
     return stmt
 }
 
 
-/*
-This function is called when the Parser is sitting on top of a LET token.
-It reads the next token (which should be an IDENT),
-then check if the next token is the ASSIGN token '=',
 
-TODO: edit this
-
-then find the semicolon (skipping the value for now)
-*/
 func (p *Parser) parseLetStatement() *ast.LetStatement {
     stmt := &ast.LetStatement{Token: p.curToken}
 
@@ -319,9 +338,10 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
     if !p.expectPeek(token.ASSIGN) {
         return nil
     }
+    p.nextToken()
+    stmt.Value = p.parseExpression(LOWEST)
 
-
-    for !p.curTokenIs(token.SEMICOLON) {
+    if p.peekTokenIs(token.SEMICOLON) {
         p.nextToken()
     }
 
@@ -387,6 +407,7 @@ var precedences = map[token.TokenType]int {
     token.MINUS:    SUM,
     token.SLASH:    PRODUCT,
     token.ASTERISK: PRODUCT,
+    token.LPAREN:   CALL,
 }
 
 func (p *Parser) peekPrecedence() int {
