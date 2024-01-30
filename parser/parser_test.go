@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"APlusPlus/ast"
-	"APlusPlus/lexer"
+	"A-Plus-Plus/AST"
+	"A-Plus-Plus/lexer"
 	"testing"
     "fmt"
 )

@@ -3,19 +3,19 @@ package lexer
 // TODO: Support Unicode for indentifier
 
 import(
-    "APlusPlus/token"
+    "A-Plus-Plus/token"
 )
 
 type Lexer struct {
-    input string 
+    input string
     position int // position of the current char
     read_position int // position where we are currently reading after the current char (since we need to peek further into the input)
-    ch byte // current char 
+    ch byte // current char
 }
 
 func (l *Lexer) NextToken() token.Token {
-    var tok token.Token 
-    
+    var tok token.Token
+
     l.skipWhitespace()
 
     switch l.ch {
@@ -64,7 +64,7 @@ func (l *Lexer) NextToken() token.Token {
             tok.Type = token.LookupIdent(tok.Literal)
             return tok
         } else if isDigit(l.ch) {
-            tok.Type = token.INT 
+            tok.Type = token.INT
             tok.Literal = l.readNumber()
             return tok
         } else {
@@ -77,7 +77,7 @@ func (l *Lexer) NextToken() token.Token {
 }
 
 func (l *Lexer) makeTwoCharTok() token.Token {
-    ch := l.ch 
+    ch := l.ch
     l.readChar()
     literal := string(ch) + string(l.ch)
     tok := token.Token{Type: token.LookupOperator(literal), Literal: literal}
@@ -93,7 +93,7 @@ func (l *Lexer) peekChar() byte {
 }
 
 func (l *Lexer) readIdentifier() string {
-    position := l.position 
+    position := l.position
     for isLetter(l.ch) {
         l.readChar()
     }
@@ -130,7 +130,7 @@ func New(input string) *Lexer {
 
 func (l *Lexer) readNumber() string {
     // TODO: read floats and hex, or even octal
-    position := l.position 
+    position := l.position
     for isDigit(l.ch) {
         l.readChar()
     }

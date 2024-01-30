@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"APlusPlus/ast"
-	"APlusPlus/lexer"
-	"APlusPlus/token"
+	"A-Plus-Plus/AST"
+	"A-Plus-Plus/lexer"
+	"A-Plus-Plus/token"
 	"fmt"
 	"strconv"
 )

@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"APlusPlus/token"
+	"A-Plus-Plus/token"
 	"testing"
 )
 

@@ -1,11 +1,11 @@
-package repl 
+package repl
 
 import(
     "bufio"
     "fmt"
     "io"
-    "APlusPlus/lexer"
-    "APlusPlus/token"
+    "A-Plus-Plus/lexer"
+    "A-Plus-Plus/token"
 )
 
 const PROMPT = ">> "

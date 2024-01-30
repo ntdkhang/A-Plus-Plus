@@ -1,8 +1,8 @@
 package lexer
 
-import( 
+import(
     "testing"
-    "APlusPlus/token"
+    "A-Plus-Plus/token"
 )
 
 func TestNextToken(t *testing.T) {
@@ -111,7 +111,7 @@ func TestNextToken(t *testing.T) {
         if tok.Type != tt.expected_type {
             t.Fatalf("tests[%d]: wrong TokenType. Expected: %q, got: %q", i, tt.expected_type, tok.Type)
         }
-        
+
         if tok.Literal != tt.expected_literal {
             t.Fatalf("tests[%d]: wrong Literal. Expected: %q, got: %q", i, tt.expected_literal, tok.Literal)
         }
