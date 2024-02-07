@@ -1,18 +1,20 @@
 package repl
 
-import(
-    "bufio"
-    "fmt"
-    "io"
-    "A-Plus-Plus/lexer"
-    "A-Plus-Plus/parser"
-    "A-Plus-Plus/evaluator"
+import (
+	"A-Plus-Plus/evaluator"
+	"A-Plus-Plus/lexer"
+	"A-Plus-Plus/object"
+	"A-Plus-Plus/parser"
+	"bufio"
+	"fmt"
+	"io"
 )
 
 const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {
     scanner := bufio.NewScanner(in)
+    env := object.NewEnvironment()
 
     for {
         fmt.Fprintf(out, PROMPT)
@@ -29,7 +31,7 @@ func Start(in io.Reader, out io.Writer) {
             continue
         }
 
-        evaluated := evaluator.Eval(program)
+        evaluated := evaluator.Eval(program, env)
         if evaluated != nil {
             io.WriteString(out, evaluated.Inspect())
             io.WriteString(out, "\n")
