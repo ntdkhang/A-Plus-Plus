@@ -3,7 +3,7 @@ package token
 type TokenType string
 
 type Token struct {
-    Type TokenType 
+    Type TokenType
     Literal string
 }
 
@@ -15,7 +15,8 @@ const (
     // Identifiers + literals
     IDENT = "IDENT"
     INT = "INT"
-    
+    STRING = "STRING"
+
     // Operators
     ASSIGN = "="
     PLUS = "+"
@@ -29,7 +30,7 @@ const (
 
     EQ = "=="
     NOT_EQ = "!="
-    
+
     // Delimiters
     COMMA = ","
     SEMICOLON = ";"
@@ -41,7 +42,7 @@ const (
 
     // Keywords
     FUNCTION = "FUNCTION"
-    LET = "LET"
+    LET      = "LET"
     TRUE     = "TRUE"
     FALSE    = "FALSE"
     IF       = "IF"
